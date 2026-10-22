@@ -1,0 +1,144 @@
+
+' docs/diagrams/02-domain-class-diagram.puml
+@startuml
+
+title PocketBattleAPI - Domain Class Diagram
+
+' Instellingen voor een overzichtelijk klassendiagram.
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+' De drie mogelijke elementtypes.
+enum ElementType {
+    FIRE
+    WATER
+    GRASS
+}
+
+' Een normale aanval heeft type = null.
+' Een elementaanval heeft hetzelfde type als het monster.
+class Attack {
+    +name: String
+    +basePower: Int
+    +type: ElementType?
+}
+
+' De vaste gegevens van een monster.
+' Deze gegevens veranderen niet tijdens een gevecht.
+class Monster {
+    +id: Int
+    +name: String
+    +type: ElementType
+    +level: Int
+    +maxHp: Int
+    +defense: Int
+    +speed: Int
+    +normalAttack: Attack
+    +elementalAttack: Attack
+}
+
+' De tijdelijke toestand van een monster tijdens een gevecht.
+class BattleMonster {
+    +monster: Monster
+    +currentHp: Int
+    +attackCount: Int
+    +selectNextAttack(): Attack
+    +receiveDamage(damage: Int): Unit
+    +isDefeated(): Boolean
+}
+
+note right of BattleMonster
+  selectNextAttack():
+  - Bij even attackCount: normale aanval.
+  - Bij oneven attackCount: elementaanval.
+  - Verhoogt daarna attackCount met 1.
+
+  receiveDamage():
+  - Verlaagt currentHp.
+  - currentHp wordt nooit negatief.
+
+  Monster blijft ongewijzigd.
+end note
+
+' Berekent de schade zonder monstergegevens te wijzigen.
+class DamageCalculator {
+    +calculateDamage(attacker: Monster, defender: Monster, attack: Attack): Int
+    -getTypeMultiplier(attackType: ElementType?, defenderType: ElementType): Double
+}
+
+note right of DamageCalculator
+  Damage = max(1, floor(
+    (BasePower * (Level + 5)
+    / (Defense + 10))
+    * TypeMultiplier
+  ))
+
+  Level = level van de aanvaller.
+  Defense = defense van de verdediger.
+
+  Sterk = 1.5
+  Neutraal = 1.0
+  Zwak = 0.75
+  Normale aanval = 1.0
+end note
+
+' Organiseert het volledige automatische gevecht.
+class BattleService {
+    -damageCalculator: DamageCalculator
+    +simulate(first: Monster, second: Monster): BattleResult
+}
+
+note right of BattleService
+  Het monster met de hoogste speed begint.
+
+  Bij gelijke speed begint first.
+
+  Het gevecht eindigt zodra
+  een monster 0 HP heeft.
+end note
+
+' Beschrijft een uitgevoerde aanval.
+class BattleTurn {
+    +turnNumber: Int
+    +attackerId: Int
+    +defenderId: Int
+    +attackName: String
+    +damage: Int
+    +remainingHp: Int
+}
+
+' Het resultaat van een volledig gevecht.
+class BattleResult {
+    +winnerId: Int
+    +loserId: Int
+    +totalAttacks: Int
+    +turns: List<BattleTurn>
+}
+
+' Elk monster bevat precies twee aanvallen.
+Monster "1" *-- "1" Attack : normalAttack
+Monster "1" *-- "1" Attack : elementalAttack
+
+' Een monster heeft precies een elementtype.
+Monster --> ElementType : type
+
+' Het elementtype van een aanval is optioneel.
+Attack --> "0..1" ElementType : type
+
+' BattleMonster verwijst naar de vaste monstergegevens.
+BattleMonster --> "1" Monster : monster
+
+' BattleService gebruikt de schadeberekening.
+BattleService --> DamageCalculator : gebruikt
+
+' Per gevecht worden twee tijdelijke BattleMonster-objecten gemaakt.
+BattleService ..> BattleMonster : maakt aan
+
+' BattleService retourneert het eindresultaat.
+BattleService ..> BattleResult : retourneert
+
+' Het resultaat bevat alle uitgevoerde aanvallen.
+BattleResult "1" *-- "0..*" BattleTurn : turns
+
+@enduml

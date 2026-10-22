@@ -1,6 +1,8 @@
+# resources/application.yaml
 ktor:
   application:
     modules:
-      - org.jetbrains.amper.ktor.ApplicationKt.module
+      - org.jetbrains.amper.ktor.ApplicationKt.module  # Verwijst naar Application.module() in Application.kt.
+
   deployment:
-    port: 8080
+    port: 8080                                         # De Ktor-server luistert op poort 8080.

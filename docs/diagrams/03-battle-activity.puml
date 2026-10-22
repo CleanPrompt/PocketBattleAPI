@@ -1,0 +1,71 @@
+
+' docs/diagrams/03-battle-activity.puml
+@startuml
+
+title PocketBattleAPI - Battle Activity Diagram
+
+' Instelling voor een overzichtelijk diagram.
+skinparam shadowing false
+
+start
+
+' De API heeft vooraf gecontroleerd dat beide monsters bestaan
+' en dat het om twee verschillende monster-ID's gaat.
+:Ontvang twee verschillende bestaande monsters;
+
+' Maak voor beide monsters tijdelijke gevechtsstatus aan.
+:Maak twee BattleMonster-objecten aan;
+:Zet voor beide currentHp op maxHp;
+:Zet voor beide attackCount op 0;
+:Maak een lege gevechtslog aan;
+
+' Bepaal welk monster de eerste aanval uitvoert.
+if (Heeft monster 1 een hogere of gelijke speed?) then (Ja)
+    :Monster 1 begint;
+else (Nee)
+    :Monster 2 begint;
+endif
+
+:Stel het beginnende monster in als aanvaller;
+:Stel het andere monster in als verdediger;
+
+' Het gevecht gaat door zolang beide monsters leven.
+while (Zijn beide monsters nog in leven?) is (Ja)
+
+    ' BattleMonster kiest de volgende aanval.
+    ' Bij een even teller kiest het de normale aanval.
+    ' Bij een oneven teller kiest het de elementaanval.
+    ' De methode verhoogt daarna de eigen attackCount.
+    :Roep selectNextAttack() aan;
+
+    ' Bereken schade met de afgesproken formule.
+    :Bereken type-effectiviteit;
+    :Bereken schade met DamageCalculator;
+
+    ' Verander alleen de tijdelijke HP van de verdediger.
+    :Roep receiveDamage(damage) aan;
+    :Beperk currentHp tot minimaal 0;
+
+    ' Bewaar de gegevens van de uitgevoerde aanval.
+    :Registreer de aanval als BattleTurn;
+
+    ' Stop zodra de verdediger is verslagen.
+    if (Is de verdediger verslagen?) then (Ja)
+        :Stel aanvaller in als winnaar;
+        :Stel verdediger in als verliezer;
+        break
+    else (Nee)
+        ' Alleen wanneer het gevecht doorgaat wisselen de rollen.
+        :Wissel aanvaller en verdediger;
+    endif
+
+endwhile (Nee)
+
+' Bouw het resultaat op na de laatste aanval.
+:Maak BattleResult aan;
+:Voeg winnaar, verliezer en gevechtslog toe;
+:Retourneer BattleResult;
+
+stop
+
+@enduml

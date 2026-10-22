@@ -1,0 +1,39 @@
+
+' docs/diagrams/01-use-cases.puml
+@startuml
+' Start van het Use Case Diagram.
+
+left to right direction
+' Plaatst de actor links en het systeem rechts.
+
+skinparam shadowing false
+' Schakelt schaduwen uit voor een overzichtelijk diagram.
+
+skinparam packageStyle rectangle
+' Gebruikt een rechthoekige systeemgrens.
+
+title PocketBattleAPI - Use Case Diagram
+
+actor "API-gebruiker" as User
+' Een externe gebruiker of applicatie die onze REST API aanroept.
+
+rectangle "PocketBattleAPI" {
+    usecase "Monster aanmaken" as UC01
+    usecase "Monsters bekijken" as UC02
+    usecase "Monster wijzigen" as UC03
+    usecase "Monster verwijderen" as UC04
+    usecase "Monsters filteren" as UC05
+    usecase "Gevecht simuleren" as UC06
+}
+' De rechthoek bevat de functionaliteiten die onze API aanbiedt.
+
+User -- UC01
+User -- UC02
+User -- UC03
+User -- UC04
+User -- UC05
+User -- UC06
+' De lijnen geven aan welke functionaliteiten de API-gebruiker kan uitvoeren.
+
+@enduml
+' Einde van het diagram.

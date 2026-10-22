@@ -1,3 +1,122 @@
-# Build output
-build/
-out/
+# .gitignore
+
+# ==================================================
+# PocketBattleAPI - Git Ignore
+# Kotlin / Ktor / JetBrains Amper / IntelliJ IDEA
+# ==================================================
+
+
+# --------------------------------------------------
+# 1. JetBrains Amper
+# --------------------------------------------------
+
+# Gegenereerde bestanden en caches van Amper.
+.amper/
+/build/
+/out/
+
+
+# --------------------------------------------------
+# 2. IntelliJ IDEA
+# --------------------------------------------------
+
+# Lokale IDE-instellingen.
+.idea/
+
+# IntelliJ-modulebestanden.
+*.iml
+*.ipr
+*.iws
+
+
+# --------------------------------------------------
+# 3. Kotlin / Java
+# --------------------------------------------------
+
+# Gecompileerde Java- en Kotlin-bestanden.
+*.class
+
+# Gegenereerde archieven en applicatiebestanden.
+*.jar
+*.war
+*.ear
+
+# Kotlin-cachebestanden.
+.kotlin/
+
+
+# --------------------------------------------------
+# 4. H2-database
+# --------------------------------------------------
+
+# Lokale databasebestanden worden niet gecommit.
+*.mv.db
+*.trace.db
+*.h2.db
+*.lock.db
+
+# Lokale datamappen.
+data/
+database/
+
+
+# --------------------------------------------------
+# 5. Logs
+# --------------------------------------------------
+
+# Gegenereerde logbestanden.
+*.log
+logs/
+
+
+# --------------------------------------------------
+# 6. Tijdelijke bestanden
+# --------------------------------------------------
+
+# Bestanden van het besturingssysteem.
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Tijdelijke bestanden van editors.
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+
+
+# --------------------------------------------------
+# 7. Omgevingsvariabelen en geheimen
+# --------------------------------------------------
+
+# Lokale configuratie met mogelijke geheimen.
+.env
+.env.*
+!.env.example
+
+# Private sleutels en certificaten.
+*.pem
+*.key
+*.p12
+*.pfx
+
+
+# --------------------------------------------------
+# 8. Test- en coveragebestanden
+# --------------------------------------------------
+
+# Gegenereerde testresultaten.
+test-results/
+coverage/
+htmlReport/
+*.exec
+
+
+# --------------------------------------------------
+# 9. Lokale configuratie
+# --------------------------------------------------
+
+# Machine-afhankelijke instellingen.
+local.properties

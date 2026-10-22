@@ -1,0 +1,134 @@
+
+' docs/diagrams/04-battle-sequence.puml
+@startuml
+
+title PocketBattleAPI - Battle Sequence Diagram
+
+' Instellingen voor een overzichtelijk diagram.
+skinparam shadowing false
+autonumber
+
+actor "API / aanroeper" as Client
+
+participant "BattleService" as Service
+participant "BattleMonster\n(monster 1)" as First
+participant "BattleMonster\n(monster 2)" as Second
+participant "DamageCalculator" as Calculator
+
+' De aanroeper start een gevecht met twee bestaande monsters.
+Client -> Service : simulate(first, second)
+activate Service
+
+' Maak tijdelijke gevechtsstatus aan voor monster 1.
+create First
+Service -> First : BattleMonster(first)
+
+' Maak tijdelijke gevechtsstatus aan voor monster 2.
+create Second
+Service -> Second : BattleMonster(second)
+
+note over First, Second
+  Beide BattleMonster-objecten starten met:
+  - currentHp = maxHp
+  - attackCount = 0
+
+  De opgeslagen Monster-objecten
+  blijven ongewijzigd.
+end note
+
+' Bepaal welk monster de eerste aanvaller wordt.
+Service -> Service : Bepaal aanvalsvolgorde op basis van speed
+
+note right of Service
+  Hoogste speed begint.
+  Bij gelijke speed begint first.
+
+  Aanvaller en verdediger zijn
+  wisselende rollen.
+
+  First en Second blijven
+  dezelfde objecten.
+end note
+
+' Elke herhaling stelt een uitgevoerde aanval voor.
+loop Zolang beide monsters leven
+
+    ' Bepaal welke van de twee objecten de huidige aanvaller is.
+    Service -> Service : Bepaal huidige aanvaller en verdediger
+
+    ' De volgende twee takken tonen beide mogelijke aanvallers.
+    alt Monster 1 is de huidige aanvaller
+
+        ' Monster 1 kiest de aanval en verhoogt zijn eigen teller.
+        Service -> First : selectNextAttack()
+        activate First
+        First --> Service : Attack
+        deactivate First
+
+        ' Bereken schade op basis van de vaste monstergegevens.
+        Service -> Calculator : calculateDamage(first, second, attack)
+        activate Calculator
+        Calculator --> Service : damage
+        deactivate Calculator
+
+        ' Monster 2 ontvangt de schade.
+        Service -> Second : receiveDamage(damage)
+        activate Second
+        Second --> Service : Unit
+        deactivate Second
+
+        ' Controleer of monster 2 is verslagen.
+        Service -> Second : isDefeated()
+        activate Second
+        Second --> Service : Boolean
+        deactivate Second
+
+    else Monster 2 is de huidige aanvaller
+
+        ' Monster 2 kiest de aanval en verhoogt zijn eigen teller.
+        Service -> Second : selectNextAttack()
+        activate Second
+        Second --> Service : Attack
+        deactivate Second
+
+        ' Bereken schade op basis van de vaste monstergegevens.
+        Service -> Calculator : calculateDamage(second, first, attack)
+        activate Calculator
+        Calculator --> Service : damage
+        deactivate Calculator
+
+        ' Monster 1 ontvangt de schade.
+        Service -> First : receiveDamage(damage)
+        activate First
+        First --> Service : Unit
+        deactivate First
+
+        ' Controleer of monster 1 is verslagen.
+        Service -> First : isDefeated()
+        activate First
+        First --> Service : Boolean
+        deactivate First
+
+    end
+
+    ' Iedere uitgevoerde aanval wordt vastgelegd.
+    Service -> Service : Registreer BattleTurn
+
+    ' Bij een verslagen verdediger stopt het gevecht.
+    break Huidige verdediger is verslagen
+        Service -> Service : Bepaal winnaar en verliezer
+    end
+
+    ' Alleen als beide monsters nog leven wisselen de rollen.
+    Service -> Service : Wissel aanvaller en verdediger
+
+end
+
+' Maak het resultaat met de volledige gevechtslog.
+Service -> Service : Maak BattleResult
+
+' Geef het resultaat terug aan de aanroeper.
+Service --> Client : BattleResult
+deactivate Service
+
+@enduml
